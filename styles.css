@@ -490,9 +490,9 @@ nav ul li a.active::after {
 @media (max-width: 480px) {
     :root {
         /* Mantenemos la reducción del anillo como antes, o ajústala si es necesario */
-        --ring-radius: 150px;
-        --image-width: 38px;
-        --image-height: 26px;
+        --ring-radius: 170px;
+        --image-width: 45px;
+        --image-height: 30px;
         --animation-duration: 70s; /* Opcional */
     }
 
@@ -502,12 +502,13 @@ nav ul li a.active::after {
     }
 
     .logo {
-        position: relative;       /* Para que ocupe espacio en el flujo normal */
-        left: auto;
-        top: auto;
-        width: 100%;
-        text-align: center;       /* Centra la imagen del logo si es un bloque en línea */
-        margin: 0 auto 25px auto; /* Centra el div y añade margen inferior */
+         position: absolute;       /* Position relative to the body */
+        top: 30px;                /* Distance from the top of the body */
+        left: 50%;                /* Start at the horizontal midpoint */
+        transform: translateX(-50%); /* Shift left by half its own width to center it */
+        width: auto;              /* Let the image inside determine the width */
+        z-index: 100;             /* Ensure it's above other content */
+        /* The text-align and margin:auto for centering are not needed with this positioning method */
     }
     .logo img {
         max-width: 100px;         /* O el tamaño que prefieras para el logo */
@@ -528,7 +529,7 @@ nav ul li a.active::after {
     }
 
     .main-title {
-        font-size: 1.8rem;        /* Título principal reducido */
+        font-size: 2.2rem;        /* Título principal reducido */
         margin-top: 0;            /* El logo ya tiene margen inferior */
         margin-bottom: 0.5em;     /* Espacio antes del anillo (o pixel-icon si estuviera visible) */
     }
@@ -551,4 +552,5 @@ nav ul li a.active::after {
         bottom: -5px;
     }
     }
+    
     
