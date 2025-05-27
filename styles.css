@@ -1,0 +1,554 @@
+
+:root {
+    --brand-color: black;
+    /* Bordó */
+    --text-dark: #000000;
+    --text-medium: #868686;
+    --text-light: #bebebe;
+    --bg-light-gray: #f8f8f8;
+    --bg-white: #ffffff;
+
+    --num-images: 24;
+    --ring-radius: 320px;
+    /* Radio del círculo de imágenes */
+    --image-width: 75px;
+    --image-height: 50px;
+    --animation-duration: 80s;
+    /* Duración de la rotación del anillo */
+    --deploy-animation-duration: 0.7s;
+    /* Duración para que una imagen llegue a su sitio */
+    --deploy-stagger-delay: 80ms;
+    /* Retraso entre el inicio de animación de cada imagen */
+}
+
+/* === Media Queries para Responsividad === */
+
+
+body {
+    margin: 0;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background: radial-gradient(circle at center, var(--bg-white) 60%, var(--bg-light-gray) 100%);
+    color: var(--text-medium);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    overflow: hidden;
+    /* Evita scrollbars por elementos animados grandes */
+    position: relative;
+}
+
+.logo {
+    position: absolute;
+    top: 20px;
+    left: 40px;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--text-dark);
+    z-index: 100;
+}
+
+.logo span {
+    color: var(--brand-color);
+}
+
+nav {
+    position: absolute;
+    top: 35px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 35px;
+    /* Espacio entre enlaces */
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: black;
+    font-size: 14px;
+    font-weight: 420;
+    text-transform: uppercase;
+    padding-bottom: 5px;
+    position: relative;
+}
+
+nav ul li a.active {
+    font-weight: 700;
+    color: black
+}
+
+nav ul li a.active::after {
+    content: '';
+    display: block;
+    width: 6px;
+    height: 6px;
+    background-color: black;
+    border-radius: 50%;
+    margin: 6px auto 0;
+    /* Centrado debajo */
+}
+
+
+.central-content {
+    position: relative;
+    /* Contenedor para el texto y el anillo de imágenes */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* El tamaño lo dará el anillo de imágenes o el texto, lo que sea mayor */
+}
+
+.text-content {
+    text-align: center;
+    position: relative;
+    /* Para asegurar que esté sobre el anillo */
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fade-in 2s ease-in forwards;
+    animation-delay: 2s;
+    opacity: 0;
+    
+}
+
+.main-title {
+    font-size: 3.5rem;
+    /* Grande */
+    color: #4E080C;
+    margin: 0.2em 0;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #4E080C;
+    margin: 0 0 1.5em 0;
+    max-width: 400px;
+}
+
+.pixel-icon {
+    display: flex;
+}
+
+.pixel-icon span {
+    width: 12px;
+    height: 12px;
+    background-color: var(--brand-color);
+}
+
+.image-ring-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Centra el contenedor del anillo */
+    width: calc(2 * var(--ring-radius) + var(--image-width));
+    height: calc(2 * var(--ring-radius) + var(--image-height));
+    z-index: 5;
+    /* Detrás del texto */
+    perspective: 1000px;
+    /* border: 1px dashed red; /* Para debug de posicionamiento */
+}
+
+.image-ring {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    animation: spin-ring var(--animation-duration) linear infinite;
+    transform-origin: center center;
+}
+
+@keyframes fade-in {
+    from {
+       opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin-ring {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.image-item {
+    position: absolute;
+    top: 50%;
+    /* Centro del .image-ring */
+    left: 50%;
+    /* Centro del .image-ring */
+    width: var(--image-width);
+    height: var(--image-height);
+    margin-left: calc(var(--image-width) / -2);
+    /* Centra el item en su eje */
+    margin-top: calc(var(--image-height) / -2);
+    /* Centra el item en su eje */
+    transform-origin: center center;
+    /* La rotación para posicionar es alrededor del centro del anillo */
+    transition: transform 0.5s ease-in-out,
+        scale 1s cubic-bezier(0.25, 0.8, 0.25, 1);
+    /* Estado inicial antes de que JavaScript actúe (fallback) */
+    opacity: 0;
+    /* El transform inicial específico (rotado en el centro) lo establecerá JavaScript */
+    /* La transición se aplicará cuando JS cambie los estilos para mover al estado final */
+    transition: transform var(--deploy-animation-duration) cubic-bezier(0.33, 1, 0.68, 1),
+        /* Easing para "aterrizaje" suave */
+        opacity calc(var(--deploy-animation-duration) / 1.5) ease-out,
+        scale var(--deploy-animation-duration) cubic-bezier(0.33, 1, 0.68, 1);
+    /* Para el hover scale */
+
+    /* Para asegurar que las imágenes no sean visibles hasta que comience su animación */
+    /* transform: scale(0.3); /* Un scale inicial general, JS lo refinará con rotación */
+
+}
+
+.image-item::before {
+    content: "";
+    /* Necesario para que el pseudo-elemento se genere */
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    /* Hitbox original, ajusta si la hitbox de -50px que tenías antes era intencional para algo más */
+    right: -10px;
+    bottom: -10px;
+    /* background-color: rgba(255,0,0,0.1); /* Para depurar hitbox */
+
+    /* Estos valores definen cuánto se extiende el hitbox más allá de los bordes del .image-item.
+       Por ejemplo, -10px en cada lado significa que el hitbox será 10px más grande 
+       hacia arriba, abajo, izquierda y derecha. Ajusta estos valores según necesites. */
+    top: -10px;
+    left: -30px;
+    right: -30px;
+    bottom: -10px;
+
+    /* Para depuración visual del hitbox (puedes descomentar esto temporalmente): */
+    /* background-color: rgba(255, 0, 0, 0.2); */
+}
+
+.image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    image-orientation: none;
+    transform: rotate(0deg);
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 1s ease-out;
+    /* La rotación de la imagen misma para que quede "parada" o ligeramente inclinada */
+    /* En este caso, las imágenes se rotarán con su contenedor (.image-item) */
+}
+
+/* Generación de posiciones para las imágenes */
+/* Se puede hacer con JS para N dinámico, pero para ~24 es manejable en CSS */
+/* La transformación clave: rotar el item y luego moverlo hacia afuera (translateX) */
+.image-item:nth-child(1) {
+    transform: rotate(calc(360deg / var(--num-images) * 0)) translateX(var(--ring-radius)) rotate(calc(-360deg / var(--num-images) * 0));
+}
+
+.image-item:nth-child(1) img {
+    transform: rotate(0deg);
+}
+
+/* Ajuste fino si es necesario */
+
+/* Repetir para cada imagen, ajustando el ángulo */
+/* (i-1) para el índice base 0 */
+.image-item:nth-child(1) {
+    transform: rotate(calc(360deg / var(--num-images) * 0)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(2) {
+    transform: rotate(calc(360deg / var(--num-images) * 1)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(3) {
+    transform: rotate(calc(360deg / var(--num-images) * 2)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(4) {
+    transform: rotate(calc(360deg / var(--num-images) * 3)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(5) {
+    transform: rotate(calc(360deg / var(--num-images) * 4)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(6) {
+    transform: rotate(calc(360deg / var(--num-images) * 5)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(7) {
+    transform: rotate(calc(360deg / var(--num-images) * 6)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(8) {
+    transform: rotate(calc(360deg / var(--num-images) * 7)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(9) {
+    transform: rotate(calc(360deg / var(--num-images) * 8)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(10) {
+    transform: rotate(calc(360deg / var(--num-images) * 9)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(11) {
+    transform: rotate(calc(360deg / var(--num-images) * 10)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(12) {
+    transform: rotate(calc(360deg / var(--num-images) * 11)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(13) {
+    transform: rotate(calc(360deg / var(--num-images) * 12)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(14) {
+    transform: rotate(calc(360deg / var(--num-images) * 13)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(15) {
+    transform: rotate(calc(360deg / var(--num-images) * 14)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(16) {
+    transform: rotate(calc(360deg / var(--num-images) * 15)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(17) {
+    transform: rotate(calc(360deg / var(--num-images) * 16)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(18) {
+    transform: rotate(calc(360deg / var(--num-images) * 17)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(19) {
+    transform: rotate(calc(360deg / var(--num-images) * 18)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(20) {
+    transform: rotate(calc(360deg / var(--num-images) * 19)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(21) {
+    transform: rotate(calc(360deg / var(--num-images) * 20)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(22) {
+    transform: rotate(calc(360deg / var(--num-images) * 21)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(23) {
+    transform: rotate(calc(360deg / var(--num-images) * 22)) translateX(var(--ring-radius)) scale(1);
+}
+
+.image-item:nth-child(24) {
+    transform: rotate(calc(360deg / var(--num-images) * 23)) translateX(var(--ring-radius)) scale(1);
+}
+
+/* Las imágenes dentro de .image-item se orientarán según la rotación de .image-item.
+           Si se desea que las imágenes permanezcan verticales (sin rotar con el anillo),
+           se necesitaría una rotación inversa en la propia etiqueta <img>.
+           Ej: .image-item:nth-child(2) img { transform: rotate(calc(-360deg / var(--num-images) * 1)); }
+           Pero el diseño de ejemplo muestra las imágenes rotando con su posición.
+        */
+/* Para tablets y móviles grandes (ej. pantallas de hasta 768px de ancho) */
+/* === Media Queries para Responsividad === */
+
+/* === Media Queries para Responsividad === */
+
+/* Escritorio Pequeño / Tablet Horizontal (ej. entre 769px y 1024px) */
+@media (max-width: 1024px) {
+    :root {
+        /* Ajustes intermedios para el anillo */
+        --ring-radius: 300px; /* Ejemplo, un poco más pequeño que escritorio */
+        --image-width: 65px;
+        --image-height: 45px;
+    }
+
+    .main-title {
+        font-size: 3rem; /* Un poco más pequeño */
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    nav ul {
+        gap: 25px; /* Espacio intermedio */
+    }
+    
+    .image-item::before {
+        /* Ajuste intermedio del hitbox */
+        left: -35px; 
+        right: -35px;
+    }
+}
+
+/* Tablet Vertical (Este ya lo tenías, asegúrate que los valores aquí tengan sentido después del breakpoint de 1024px) */
+@media (max-width: 768px) {
+    :root {
+        --ring-radius: 240px; 
+        --image-width: 50px;  
+        --image-height: 35px; 
+    }
+
+    .logo {
+        left: 20px;
+        top: 15px;
+    }
+    .logo img {
+        max-width: 100px; 
+    }
+
+    nav {
+        top: 20px; 
+    }
+    nav ul {
+        gap: 15px; 
+    }
+    nav ul li a {
+        font-size: 12px; 
+    }
+     nav ul li a.active::after {
+        width: 4px;
+        height: 4px;
+        margin-top: 4px;
+    }
+
+    .text-content {
+        animation-delay: 0.5s; 
+    }
+
+    .main-title {
+        font-size: 2.5rem; 
+    }
+
+    .subtitle {
+        font-size: 0.9rem; 
+        max-width: 90%;   
+    }
+
+    .pixel-icon img {
+        max-width: 80px; 
+    }
+
+    .image-item::before {
+        top: -5px;
+        left: -15px; 
+        right: -15px;
+        bottom: -5px;
+    }
+}
+
+/* Móvil Grande / Tablet Pequeña Vertical (ej. entre 481px y 600px) */
+@media (max-width: 600px) {
+    :root {
+        /* Ajustes intermedios */
+        --ring-radius: 200px; 
+        --image-width: 45px;
+        --image-height: 30px;
+    }
+
+    .main-title {
+        font-size: 2.2rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+    }
+    
+    nav ul {
+        gap: 10px 20px; /* Ajusta el gap para esta etapa */
+    }
+
+    .image-item::before {
+        left: -10px; 
+        right: -10px;
+    }
+}
+@media (max-width: 480px) {
+    :root {
+        /* Mantenemos la reducción del anillo como antes, o ajústala si es necesario */
+        --ring-radius: 150px;
+        --image-width: 38px;
+        --image-height: 26px;
+        --animation-duration: 70s; /* Opcional */
+    }
+
+    body {
+        padding-top: 20px; /* Ajusta el padding general si es necesario */
+        padding-bottom: 20px;
+    }
+
+    .logo {
+        position: relative;       /* Para que ocupe espacio en el flujo normal */
+        left: auto;
+        top: auto;
+        width: 100%;
+        text-align: center;       /* Centra la imagen del logo si es un bloque en línea */
+        margin: 0 auto 25px auto; /* Centra el div y añade margen inferior */
+    }
+    .logo img {
+        max-width: 100px;         /* O el tamaño que prefieras para el logo */
+    }
+
+    nav {
+        display: none;            /* Oculta completamente la navegación */
+    }
+
+    .central-content {
+        margin-top: 0; /* El logo ya tiene margen inferior, ajusta si es necesario */
+    }
+    
+    .text-content {
+        max-width: 90%;
+        margin: 0 auto;
+        animation-delay: 0.1s; /* Menor delay para la animación de entrada */
+    }
+
+    .main-title {
+        font-size: 1.8rem;        /* Título principal reducido */
+        margin-top: 0;            /* El logo ya tiene margen inferior */
+        margin-bottom: 0.5em;     /* Espacio antes del anillo (o pixel-icon si estuviera visible) */
+    }
+
+    .subtitle {
+        display: none;            /* Oculta el subtítulo */
+    }
+    
+    .pixel-icon img {
+        max-width: 50px;
+        /* Si el pixel-icon también debe desaparecer, añade: display: none; */
+    }
+
+
+    .image-item::before {
+        /* Hitbox reducido como en la versión anterior para 480px */
+        top: -5px;
+        left: -10px; 
+        right: -10px;
+        bottom: -5px;
+    }
+    }
+    

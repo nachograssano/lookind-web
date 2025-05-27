@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lookind - Muy pronto</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="logo">
+        <img src="img/lookind-logo.svg" alt="">
+    </div>
+
+    <nav>
+        <ul>
+            <li><a href="#" class="active">INICIO</a></li>
+            <li><a href="#">COMUNIDAD</a></li>
+            <li><a href="#">ACCEDER</a></li>
+        </ul>
+    </nav>
+
+    <main class="central-content">
+        <div class="text-content">
+            <h1 class="main-title">Muy pronto...</h1>
+            <p class="subtitle">Inspirate y descubrí donde conseguir tus muebles</p>
+            <div class="pixel-icon">
+                <img src="img/Group 2586.png" alt="">
+            </div>
+        </div>
+
+        <div class="image-ring-container">
+            <div class="image-ring">
+                <div class="image-item"><img src="img/image-1.png" alt="Ambiente 1"></div>
+                <div class="image-item"><img src="img/image-2.png" alt="Ambiente 2"></div>
+                <div class="image-item"><img src="img/image-3.png" alt="Ambiente 3"></div>
+                <div class="image-item"><img src="img/image-4.png" alt="Ambiente 4"></div>
+                <div class="image-item"><img src="img/image-5.png" alt="Ambiente 5"></div>
+                <div class="image-item"><img src="img/image-6.png" alt="Ambiente 6"></div>
+                <div class="image-item"><img src="img/image-7.png" alt="Ambiente 7"></div>
+                <div class="image-item"><img src="img/image-8.png" alt="Ambiente 8"></div>
+                <div class="image-item"><img src="img/image-9.png" alt="Ambiente 9"></div>
+                <div class="image-item"><img src="img/image-10.png" alt="Ambiente 10"></div>
+                <div class="image-item"><img src="img/image-11.png" alt="Ambiente 11"></div>
+                <div class="image-item"><img src="img/image-12.png" alt="Ambiente 12"></div>
+                <div class="image-item"><img src="img/image-13.png" alt="Ambiente 13"></div>
+                <div class="image-item"><img src="img/image-14.png" alt="Ambiente 14"></div>
+                <div class="image-item"><img src="img/image-15.png" alt="Ambiente 15"></div>
+                <div class="image-item"><img src="img/image-16.png" alt="Ambiente 16"></div>
+                <div class="image-item"><img src="img/image-17.png" alt="Ambiente 17"></div>
+                <div class="image-item"><img src="img/image-18.png" alt="Ambiente 18"></div>
+                <div class="image-item"><img src="img/image-19.png" alt="Ambiente 19"></div>
+                <div class="image-item"><img src="img/image-20.png" alt="Ambiente 20"></div>
+                <div class="image-item"><img src="img/image-21.png" alt="Ambiente 21"></div>
+                <div class="image-item"><img src="img/image-22.png" alt="Ambiente 22"></div>
+                <div class="image-item"><img src="img/image-13.png" alt="Ambiente 23"></div>
+                <div class="image-item"><img src="img/image-5.png" alt="Ambiente 24"></div>
+            </div>
+        </div>
+    </main>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const imageRingContainer = document.querySelector('.image-ring-container');
+    const root = document.documentElement;
+    const imageItems = document.querySelectorAll('.image-item');
+    const numImages = imageItems.length;
+
+    // Leer valores de las variables CSS para usarlos en JS si es necesario
+    const deployStaggerDelay = parseFloat(getComputedStyle(root).getPropertyValue('--deploy-stagger-delay')) || 80;
+    const initialScale = 0.3; // Cuán pequeñas empiezan las imágenes en el centro
+    const initialOffsetX = '0px'; // Pequeño desfase desde el centro exacto si se desea
+
+    // 1. Establecer el estado inicial de todas las imágenes:
+    //    Rotadas según su posición final, pero en el centro, pequeñas y transparentes.
+    imageItems.forEach((item, index) => {
+        const angle = (360 / numImages) * index;
+        item.style.transform = `rotate(${angle}deg) translateX(${initialOffsetX}) scale(${initialScale})`;
+        item.style.opacity = '0';
+        // Para el efecto de "repartir cartas", la carta de "arriba" del mazo (última en DOM o z-index más alto)
+        // se mueve primero. Las apilamos con z-index.
+        item.style.zIndex = numImages - index; // La primera imagen en DOM (index 0) está "más abajo" en el mazo.
+        item.dataset.index = index; // Asegurar que el data-index esté presente para el hover
+    });
+
+    // 2. Animar cada imagen a su posición final, una por una.
+    imageItems.forEach((item, index) => {
+        // Calculamos el retraso para que la carta "de arriba" del mazo (última en el DOM, index alto) se mueva primero.
+        // Si queremos que la primera imagen del DOM (index 0) se mueva primero, el retraso sería `index * deployStaggerDelay`.
+        // Para el efecto de "repartir desde arriba del mazo" (último item del DOM primero):
+        const delay = index * deployStaggerDelay; // Si z-index es numImages - index.
+                                                // O ((numImages - 1) - index) * deployStaggerDelay si zIndex es index + 1.
+                                                // Vamos a usar el orden del DOM: item[0] primero.
+        
+        setTimeout(() => {
+            // Al quitar el transform inline, se aplicará el transform de la regla CSS :nth-child,
+            // lo que activará la transición al estado final (posición en el anillo y scale(1)).
+            item.style.transform = ''; 
+            item.style.opacity = '1';
+            // Establecer un z-index base para cuando están en el anillo, permitiendo que el hover lo modifique.
+            item.style.zIndex = '5'; 
+        }, delay);
+    });
+
+    // --- Código de Interacción Hover de Proximidad (de tu script anterior) ---
+    // Asegúrate de que los valores base de scale y zIndex aquí coincidan con el estado "desplegado"
+    const baseZIndexInRing = '5';
+    const baseScaleInRing = '1';
+
+    imageItems.forEach(item => {
+        // dataset.index ya fue asignado arriba.
+
+        item.addEventListener('mouseenter', (e) => {
+            const selectedIndex = parseInt(e.currentTarget.dataset.index);
+
+            imageItems.forEach((otherItem) => {
+                const otherIndex = parseInt(otherItem.dataset.index);
+                const diff = Math.abs(selectedIndex - otherIndex);
+                const distance = Math.min(diff, numImages - diff);
+
+                let newScale = baseScaleInRing;
+                let newZIndex = baseZIndexInRing;
+
+                if (distance === 0) { // Imagen directamente bajo el mouse
+                    newScale = '1.2'; // Ajusta estos valores según tu preferencia
+                    newZIndex = '20';
+                } else if (distance === 1) { // Vecinos inmediatos
+                    newScale = '1.05'; // En tu último script era 1.1
+                    newZIndex = '15';
+                } else if (distance === 2) { // Vecinos de segundo grado
+                    newScale = baseScaleInRing; // En tu último script era 1, lo cual es correcto si es el baseScaleInRing
+                    newZIndex = '10';
+                }
+                // Las imágenes más lejanas (distance > 2) mantendrán newScale y zIndex base.
+
+                otherItem.style.scale = newScale; // Usamos la propiedad individual 'scale'
+                otherItem.style.zIndex = newZIndex;
+            });
+        });
+    });
+
+    if (imageRingContainer) {
+        imageRingContainer.addEventListener('mouseleave', () => {
+            imageItems.forEach(item => {
+                item.style.scale = baseScaleInRing; // Restaura la escala base
+                item.style.zIndex = baseZIndexInRing; // Restaura el z-index base
+            });
+        });
+    }
+    // --- Fin del Código de Interacción Hover ---
+});
+</script>
+
+</body>
+</html>
